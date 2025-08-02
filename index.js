@@ -8,7 +8,8 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 
 
-app.use(cors({ origin: "http://localhost:5173", credentials: true })); 
+app.use(cors({ origin: "http://localhost:5173", credentials: true, methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'] })); 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -49,8 +50,12 @@ app.post("/register", async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign({ email }, "Aashish", { expiresIn: "1h" });
-    res.cookie("token", token, { httpOnly: true });
-
+   res.cookie("token", token, {
+  httpOnly: true,
+  secure: true, // 🔴 Required for HTTPS (Render uses HTTPS)
+  sameSite: "none", // 🔴 Required for cross-site cookies
+  maxAge: 3600000, // 1 hour expiry
+});
     res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
     res.status(500).json({ error: "Error creating user" });
@@ -66,7 +71,12 @@ app.post("/login", async (req, res) => {
     if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
 
     const token = jwt.sign({ email: user.email }, "Aashish", { expiresIn: "1h" });
-    res.cookie("token", token, { httpOnly: true });
+   res.cookie("token", token, {
+  httpOnly: true,
+  secure: true, // 🔴 Required for HTTPS (Render uses HTTPS)
+  sameSite: "none", // 🔴 Required for cross-site cookies
+  maxAge: 3600000, // 1 hour expiry
+});
 
     res.status(200).json({ message: "Login successful", user });
   } catch (error) {
@@ -76,6 +86,7 @@ app.post("/login", async (req, res) => {
 
 
 app.get("/profile", authMiddleware, async (req, res) => {
+   console.log("Token received:", token); 
   try {
     const user = await usermodel.findOne({ email: req.user.email });
     if (!user) return res.status(404).json({ error: "User not found" });
@@ -92,4 +103,5 @@ app.post("/logout", (req, res) => {
 });
 
 app.listen(3000, () => console.log("Server running on port 3000"));
+
 
