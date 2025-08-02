@@ -85,7 +85,7 @@ app.post("/login", async (req, res) => {
 
 
 app.get("/profile", authMiddleware, async (req, res) => {
-   console.log("Token received:", token); 
+  
   try {
     const user = await usermodel.findOne({ email: req.user.email });
     if (!user) return res.status(404).json({ error: "User not found" });
@@ -102,6 +102,7 @@ app.post("/logout", (req, res) => {
 });
 
 app.listen(3000, () => console.log("Server running on port 3000"));
+
 
 
 
