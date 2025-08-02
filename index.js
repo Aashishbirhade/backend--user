@@ -23,6 +23,9 @@ const authMiddleware = (req, res, next) => {
     next();
   });
 };
+app.get("/", (req, res) => {
+    res.send("Hello Buddy");
+});
 
 
 app.post("/register", async (req, res) => {
@@ -89,3 +92,4 @@ app.post("/logout", (req, res) => {
 });
 
 app.listen(3000, () => console.log("Server running on port 3000"));
+
